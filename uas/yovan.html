@@ -1,252 +1,181 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Login Modern</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Login Dark Aesthetic</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+    }
+
+    .box {
+      background: rgba(20, 20, 20, 0.9);
+      padding: 30px;
+      width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.6);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: #2b2b2b;
+      color: #fff;
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+      color: white;
+    }
+
+    .login-btn:hover {
+      opacity: 0.85;
+    }
+
+    .cancel-btn {
+      background: #444;
+      color: #ddd;
+    }
+
+    .cancel-btn:hover {
+      background: #555;
+    }
+
+    .logout-btn {
+      background: #e63946;
+      color: white;
+      margin-top: 20px;
+    }
+
+    .logout-btn:hover {
+      opacity: 0.85;
+    }
+
+    .success {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .success span {
+      color: #00ff99;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔐 Sistem Login</h1>
-            <p>Selamat datang! Silakan login atau daftar</p>
-        </div>
 
-        <div class="form-container" id="authContainer">
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('login')">Login</div>
-                <div class="tab" onclick="switchTab('register')">Daftar</div>
-            </div>
+<div class="box" id="app"></div>
 
-            <div class="success-message" id="successMessage"></div>
+<script>
+class LoginApp {
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    this.initUsers();
+    this.renderLogin();
+  }
 
-            <!-- Form Login -->
-            <div class="form active" id="loginForm">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="Masukkan email Anda">
-                    <div class="error-message" id="loginEmailError">Email tidak valid</div>
-                </div>
+  initUsers() {
+    if (!localStorage.getItem('users')) {
+      const users = [
+        { username: 'admin', password: '12345' },
+        { username: 'user', password: 'user123' }
+      ];
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+  }
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Masukkan password">
-                    <div class="error-message" id="loginPasswordError">Password minimal 6 karakter</div>
-                </div>
+  renderLogin() {
+    this.container.innerHTML = `
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button class="login-btn" id="loginBtn">Login</button>
+      <button class="cancel-btn" id="cancelBtn">Cancel</button>
+    `;
 
-                <div class="remember-forgot">
-                    <label class="remember">
-                        <input type="checkbox" id="rememberMe">
-                        <span>Ingat saya</span>
-                    </label>
-                    <a href="#" class="forgot-link">Lupa password?</a>
-                </div>
+    document.getElementById('loginBtn')
+      .addEventListener('click', () => this.login());
 
-                <button class="btn" onclick="handleLogin()">Masuk</button>
-            </div>
+    document.getElementById('cancelBtn')
+      .addEventListener('click', () => this.cancel());
+  }
 
-            <!-- Form Register -->
-            <div class="form" id="registerForm">
-                <div class="input-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="registerName" placeholder="Masukkan nama lengkap">
-                    <div class="error-message" id="registerNameError">Nama harus diisi</div>
-                </div>
+  login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="registerEmail" placeholder="Masukkan email Anda">
-                    <div class="error-message" id="registerEmailError">Email tidak valid</div>
-                </div>
+    const users = JSON.parse(localStorage.getItem('users'));
+    const found = users.find(
+      u => u.username === username && u.password === password
+    );
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="registerPassword" placeholder="Minimal 6 karakter">
-                    <div class="error-message" id="registerPasswordError">Password minimal 6 karakter</div>
-                </div>
+    if (!found) {
+      alert('Username atau password salah!');
+    } else {
+      this.renderUser(found.username);
+    }
+  }
 
-                <div class="input-group">
-                    <label>Konfirmasi Password</label>
-                    <input type="password" id="registerConfirmPassword" placeholder="Ulangi password">
-                    <div class="error-message" id="registerConfirmPasswordError">Password tidak sama</div>
-                </div>
+  renderUser(username) {
+    this.container.innerHTML = `
+      <div class="success">
+        Berhasil login <span>✔</span>
+      </div>
+      <p>Hallo <b>${username}</b>, selamat datang di sistem</p>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    `;
 
-                <button class="btn" onclick="handleRegister()">Daftar</button>
-            </div>
-        </div>
+    document.getElementById('logoutBtn')
+      .addEventListener('click', () => this.logout());
+  }
 
-        <!-- Dashboard setelah login -->
-        <div class="dashboard" id="dashboard">
-            <h2>✅ Login Berhasil!</h2>
-            <p>Selamat datang di dashboard Anda</p>
-            
-            <div class="user-info">
-                <p><strong>Nama:</strong> <span id="userName"></span></p>
-                <p><strong>Email:</strong> <span id="userEmail"></span></p>
-                <p><strong>Status:</strong> <span style="color: #2ecc71;">● Aktif</span></p>
-            </div>
+  logout() {
+    this.renderLogin();
+  }
 
-            <button class="btn btn-logout" onclick="handleLogout()">Keluar</button>
-        </div>
-    </div>
+  cancel() {
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+  }
+}
 
-    <script>
-        // Simulasi database pengguna
-        let users = {};
-        let currentUser = null;
+new LoginApp('app');
+</script>
 
-        function switchTab(tab) {
-            // Update tab aktif
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Update form aktif
-            document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-            if (tab === 'login') {
-                document.getElementById('loginForm').classList.add('active');
-            } else {
-                document.getElementById('registerForm').classList.add('active');
-            }
-
-            // Reset pesan
-            hideSuccessMessage();
-        }
-
-        function validateEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
-        function showError(inputId, errorId) {
-            document.getElementById(inputId).classList.add('error');
-            document.getElementById(errorId).classList.add('show');
-        }
-
-        function hideError(inputId, errorId) {
-            document.getElementById(inputId).classList.remove('error');
-            document.getElementById(errorId).classList.remove('show');
-        }
-
-        function showSuccessMessage(message) {
-            const msgElement = document.getElementById('successMessage');
-            msgElement.textContent = message;
-            msgElement.classList.add('show');
-            setTimeout(() => hideSuccessMessage(), 3000);
-        }
-
-        function hideSuccessMessage() {
-            document.getElementById('successMessage').classList.remove('show');
-        }
-
-        function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            let isValid = true;
-
-            // Validasi email
-            if (!validateEmail(email)) {
-                showError('loginEmail', 'loginEmailError');
-                isValid = false;
-            } else {
-                hideError('loginEmail', 'loginEmailError');
-            }
-
-            // Validasi password
-            if (password.length < 6) {
-                showError('loginPassword', 'loginPasswordError');
-                isValid = false;
-            } else {
-                hideError('loginPassword', 'loginPasswordError');
-            }
-
-            if (!isValid) return;
-
-            // Cek user di "database"
-            if (users[email] && users[email].password === password) {
-                currentUser = users[email];
-                showDashboard();
-            } else {
-                alert('Email atau password salah!');
-            }
-        }
-
-        function handleRegister() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            let isValid = true;
-
-            // Validasi nama
-            if (name.trim() === '') {
-                showError('registerName', 'registerNameError');
-                isValid = false;
-            } else {
-                hideError('registerName', 'registerNameError');
-            }
-
-            // Validasi email
-            if (!validateEmail(email)) {
-                showError('registerEmail', 'registerEmailError');
-                isValid = false;
-            } else {
-                hideError('registerEmail', 'registerEmailError');
-            }
-
-            // Validasi password
-            if (password.length < 6) {
-                showError('registerPassword', 'registerPasswordError');
-                isValid = false;
-            } else {
-                hideError('registerPassword', 'registerPasswordError');
-            }
-
-            // Validasi konfirmasi password
-            if (password !== confirmPassword) {
-                showError('registerConfirmPassword', 'registerConfirmPasswordError');
-                isValid = false;
-            } else {
-                hideError('registerConfirmPassword', 'registerConfirmPasswordError');
-            }
-
-            if (!isValid) return;
-
-            // Cek apakah email sudah terdaftar
-            if (users[email]) {
-                alert('Email sudah terdaftar!');
-                return;
-            }
-
-            // Simpan user baru
-            users[email] = {
-                name: name,
-                email: email,
-                password: password
-            };
-
-            showSuccessMessage('✅ Registrasi berhasil! Silakan login.');
-            
-            // Reset form dan pindah ke tab login
-            document.getElementById('registerForm').reset();
-            setTimeout(() => {
-                document.querySelectorAll('.tab')[0].click();
-            }, 1500);
-        }
-
-        function showDashboard() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userEmail').textContent = currentUser.email;
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            document.getElementById('authContainer').style.display = 'block';
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('loginForm').reset();
-            showSuccessMessage('👋 Anda telah keluar');
-        }
-    </script>
 </body>
 </html>
